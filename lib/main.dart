@@ -28,11 +28,26 @@ class MyTheme {
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
     ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2))),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+      ),
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
       elevation: 0,
       titleTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,

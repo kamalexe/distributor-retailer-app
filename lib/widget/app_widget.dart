@@ -58,20 +58,32 @@ class TabButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(color: isActive ? Colors.black : Colors.grey.shade200),
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isActive ? Colors.white : Colors.black),
-          ),
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 44),
+          backgroundColor: isActive ? Colors.black : Colors.grey.shade200,
+          foregroundColor: isActive ? Colors.white : Colors.black,
         ),
+        child: Text(text),
       ),
     );
+
+    // return Expanded(
+    //   child: InkWell(
+    //     onTap: onTap,
+    //     child: Container(
+    //       alignment: Alignment.center,
+    //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    //       decoration: BoxDecoration(color: isActive ? Colors.black : Colors.grey.shade200),
+    //       child: Text(
+    //         text,
+    //         textAlign: TextAlign.center,
+    //         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isActive ? Colors.white : Colors.black),
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 }
 

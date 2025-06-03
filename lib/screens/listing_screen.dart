@@ -1,3 +1,4 @@
+import 'package:distributor_retailer_app/screens/form_screen.dart';
 import 'package:distributor_retailer_app/widget/app_widget.dart';
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
@@ -204,6 +205,12 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
             child: TabBarView(controller: tabController, children: [_buildDistributorList(), _buildRetailerList()]),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddDistributorRetailerPage()));
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
