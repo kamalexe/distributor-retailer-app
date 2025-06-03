@@ -217,6 +217,8 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
       return const Center(child: Text('No distributors found.'));
     }
 
+    final distributors = allDistributors.where((element) => element.type == 'Distributor').toList();
+
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scrollInfo) {
         if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
@@ -225,14 +227,14 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
         return true;
       },
       child: ListView.builder(
-        itemCount: filteredDistributors.length + (hasMoreData ? 1 : 0),
+        itemCount: distributors.length + (hasMoreData ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == filteredDistributors.length) {
+          if (index == distributors.length) {
             return const Center(
               child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
             );
           }
-          return DistributorListTile(distributor: filteredDistributors[index]);
+          return DistributorListTile(distributor: distributors[index]);
         },
       ),
     );
@@ -247,6 +249,8 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
       return const Center(child: Text('No retailers found.'));
     }
 
+    final retailers = allDistributors.where((element) => element.type == 'Retailer').toList();
+
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scrollInfo) {
         if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
@@ -255,14 +259,15 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
         return true;
       },
       child: ListView.builder(
-        itemCount: filteredDistributors.length + (hasMoreData ? 1 : 0),
+        itemCount: retailers.length + (hasMoreData ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == filteredDistributors.length) {
-            return const Center(
-              child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+          if (index == retailers.length) {
+            return const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(child: CircularProgressIndicator()),
             );
           }
-          return DistributorListTile(distributor: filteredDistributors[index]);
+          return DistributorListTile(distributor: retailers[index]);
         },
       ),
     );
