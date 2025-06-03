@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:distributor_retailer_app/models/distributor.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DistributorListTile extends StatelessWidget {
   final Distributor distributor;
@@ -122,6 +125,64 @@ class AppIconButton extends StatelessWidget {
         onPressed: onPressed,
         visualDensity: VisualDensity.compact,
         icon: Icon(icon, size: 20),
+      ),
+    );
+  }
+}
+
+class ImagePickerWidget extends StatefulWidget {
+  final String label;
+  final XFile? initialImage;
+  final Function(XFile?) onImagePicked;
+  const ImagePickerWidget({super.key, required this.label, this.initialImage, required this.onImagePicked});
+
+  @override
+  State<ImagePickerWidget> createState() => _ImagePickerWidgetState();
+}
+
+class _ImagePickerWidgetState extends State<ImagePickerWidget> {
+  final ImagePicker _imagePicker = ImagePicker();
+  XFile? _image;
+  bool _isLoading = false;
+  Future<void> _pickImage() async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      _image = pickedFile;
+    });
+    widget.onImagePicked(_image);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return InkWell(
+      onTap: _pickImage,
+      child: Container(
+        width: double.infinity,
+        height: 150,
+
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(2),
+          border: Border.all(color: Colors.grey[400]!),
+        ),
+        child: _image != null
+            ? Image.file(File(_image!.path), fit: BoxFit.cover)
+            : widget.initialImage != null
+            ? Image.file(File(widget.initialImage!.path), fit: BoxFit.cover)
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.camera_alt, size: 40, color: Colors.grey[400]),
+                  Text(
+                    widget.label,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[400]),
+                  ),
+                ],
+              ),
       ),
     );
   }
