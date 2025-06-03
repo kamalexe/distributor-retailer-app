@@ -10,8 +10,15 @@ class ApiService {
     'Cookie': 'ci_session=lvtdi30a4rvo6rn923nl59h1qn9ro2af', // Use session accordingly
   };
 
-  Future<List<Distributor>> fetchDistributors() async {
-    var url = Uri.parse('$baseUrl/get_retailer_distributor_master/1');
+  Future<List<Distributor>> fetchDistributors({int page = 1, int limit = 10, String? type, String? search}) async {
+    final queryParams = {
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (type != null) 'type': type,
+      if (search != null) 'search': search,
+    };
+
+    var url = Uri.parse('$baseUrl/get_retailer_distributor_master/1').replace(queryParameters: queryParams);
     var response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {

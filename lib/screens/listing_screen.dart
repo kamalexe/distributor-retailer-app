@@ -11,13 +11,19 @@ class ListingScreen extends StatefulWidget {
 
 class _ListingScreenState extends State<ListingScreen> with SingleTickerProviderStateMixin {
   final ApiService apiService = ApiService();
-  late Future<List<Distributor>> distributors;
   late TabController tabController;
 
   List<Distributor> allDistributors = [];
   List<Distributor> filteredDistributors = [];
   TextEditingController searchController = TextEditingController();
   FocusNode searchFocusNode = FocusNode();
+
+  // Pagination variables
+  static const int itemsPerPage = 10;
+  int currentPage = 1;
+  bool isLoading = false;
+  bool hasMoreData = true;
+  String? searchQuery;
 
   @override
   void initState() {
@@ -26,15 +32,58 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
 
     tabController.addListener(() {
       if (tabController.indexIsChanging) return;
-      setState(() {});
+      setState(() {
+        // Reset pagination when tab changes
+        currentPage = 1;
+        allDistributors = [];
+        filteredDistributors = [];
+        hasMoreData = true;
+        loadMoreData();
+      });
     });
 
-    distributors = apiService.fetchDistributors();
-    distributors.then((list) {
+    // Initial data load
+    loadMoreData();
+  }
+
+  Future<void> loadMoreData() async {
+    if (isLoading || !hasMoreData) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final type = tabController.index == 0 ? 'Distributor' : 'retailer';
+      final newData = await apiService.fetchDistributors(page: currentPage, limit: itemsPerPage, type: type, search: searchQuery);
+
       setState(() {
-        allDistributors = list;
-        filteredDistributors = list;
+        if (newData.isEmpty) {
+          hasMoreData = false;
+        } else {
+          allDistributors.addAll(newData);
+          filteredDistributors = List.from(allDistributors);
+          currentPage++;
+        }
+        isLoading = false;
       });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        hasMoreData = false;
+      });
+      // You might want to show an error message to the user here
+    }
+  }
+
+  void filterSearch(String query) {
+    setState(() {
+      searchQuery = query.trim().isEmpty ? null : query;
+      currentPage = 1;
+      allDistributors = [];
+      filteredDistributors = [];
+      hasMoreData = true;
+      loadMoreData();
     });
   }
 
@@ -44,25 +93,6 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
     searchController.dispose();
     searchFocusNode.dispose();
     super.dispose();
-  }
-
-  void filterSearch(String query) {
-    if (query.trim().isEmpty) {
-      setState(() {
-        filteredDistributors = List.from(allDistributors);
-      });
-      return;
-    }
-
-    final results = allDistributors.where((dist) {
-      final name = dist.name.toLowerCase();
-      final business = dist.businessName.toLowerCase();
-      return name.contains(query.toLowerCase()) || business.contains(query.toLowerCase());
-    }).toList();
-
-    setState(() {
-      filteredDistributors = results;
-    });
   }
 
   @override
@@ -169,44 +199,69 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
           ),
 
           Expanded(
-            child: FutureBuilder<List<Distributor>>(
-              future: distributors,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting && allDistributors.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (filteredDistributors.isEmpty) {
-                  return const Center(child: Text('No distributors found.'));
-                }
-                // Tab View
-                final distributors = filteredDistributors.where((dist) => dist.type == 'Distributor').toList();
-                final retailers = filteredDistributors.where((dist) => dist.type == 'retailer').toList();
-                return TabBarView(
-                  controller: tabController,
-                  children: [
-                    ListView.builder(
-                      itemCount: distributors.length,
-                      itemBuilder: (context, index) {
-                        final distributor = distributors[index];
-                        return DistributorListTile(distributor: distributor);
-                      },
-                    ),
-                    ListView.builder(
-                      itemCount: retailers.length,
-                      itemBuilder: (context, index) {
-                        final retailer = retailers[index];
-                        return DistributorListTile(distributor: retailer);
-                      },
-                    ),
-                  ],
-                );
-              },
-            ),
+            child: TabBarView(controller: tabController, children: [_buildDistributorList(), _buildRetailerList()]),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDistributorList() {
+    if (allDistributors.isEmpty && isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (allDistributors.isEmpty && !isLoading) {
+      return const Center(child: Text('No distributors found.'));
+    }
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+          loadMoreData();
+        }
+        return true;
+      },
+      child: ListView.builder(
+        itemCount: filteredDistributors.length + (hasMoreData ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == filteredDistributors.length) {
+            return const Center(
+              child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+            );
+          }
+          return DistributorListTile(distributor: filteredDistributors[index]);
+        },
+      ),
+    );
+  }
+
+  Widget _buildRetailerList() {
+    if (allDistributors.isEmpty && isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (allDistributors.isEmpty && !isLoading) {
+      return const Center(child: Text('No retailers found.'));
+    }
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+          loadMoreData();
+        }
+        return true;
+      },
+      child: ListView.builder(
+        itemCount: filteredDistributors.length + (hasMoreData ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == filteredDistributors.length) {
+            return const Center(
+              child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+            );
+          }
+          return DistributorListTile(distributor: filteredDistributors[index]);
+        },
       ),
     );
   }
