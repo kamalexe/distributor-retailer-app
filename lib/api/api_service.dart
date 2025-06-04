@@ -19,95 +19,125 @@ class ApiService {
     };
 
     var url = Uri.parse('$baseUrl/get_retailer_distributor_master/1').replace(queryParameters: queryParams);
-    var response = await http.get(url, headers: headers);
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      // Assuming the API returns a list under 'data' key
-      List list = data['data'] ?? [];
-      return list.map((json) => Distributor.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load distributors');
+    print('🔍 API Request:');
+    print('URL: $url');
+    print('Headers: $headers');
+    print('Query Parameters: $queryParams');
+
+    try {
+      var response = await http.get(url, headers: headers);
+
+      print('📥 API Response:');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        List list = data['data'] ?? [];
+        print('📦 Parsed Data Count: ${list.length}');
+
+        final distributors = list.map((json) => Distributor.fromJson(json)).toList();
+        print('✅ Successfully parsed ${distributors.length} distributors');
+        return distributors;
+      } else {
+        print('❌ Error: Failed to load distributors. Status code: ${response.statusCode}');
+        throw Exception('Failed to load distributors. Status code: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      print('❌ Exception during API call:');
+      print('Error: $e');
+      print('Stack trace: $stackTrace');
+      throw Exception('Failed to load distributors: $e');
     }
   }
 
   Future<bool> addDistributor(Map<String, String> distributorData) async {
-    print("Adding distributor with: $distributorData");
+    print('📤 Adding distributor:');
+    print('Data: $distributorData');
+
     var url = Uri.parse('$baseUrl/add_distributor');
     var request = http.MultipartRequest('POST', url);
 
-    // Extract image path from distributorData and remove it from fields
     String? imagePath = distributorData.remove("image");
-
-    // Add form fields
     request.fields.addAll(distributorData);
-    print("Request fields: ${request.fields}");
 
-    // Attach the image file, if present
+    print('📦 Request fields: ${request.fields}');
+
     if (imagePath != null && imagePath.isNotEmpty) {
       request.files.add(await http.MultipartFile.fromPath('image', imagePath));
-      print("Image file attached: $imagePath");
+      print('📎 Image file attached: $imagePath');
     }
 
-    // Headers
-    request.headers.addAll({'Authorization': headers['Authorization']!, 'Cookie': 'ci_session=l61gjlkof6re6h2508c5to8kifl3mjkl'});
-    print("Request headers: ${request.headers}");
+    request.headers.addAll({'Authorization': headers['Authorization']!, 'Cookie': headers['Cookie']!});
 
-    // Send the request
-    var response = await request.send();
-    print("Response: $response");
+    print('🔑 Request headers: ${request.headers}');
 
-    if (response.statusCode == 200) {
+    try {
+      var response = await request.send();
       final respStr = await response.stream.bytesToString();
-      print("Response body: $respStr");
-      return true;
-    } else {
-      final errorBody = await response.stream.bytesToString();
-      print("Failed to add distributor. Status: ${response.statusCode}, Body: $errorBody");
+
+      print('📥 Response:');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: $respStr');
+
+      if (response.statusCode == 200) {
+        print('✅ Successfully added distributor');
+        return true;
+      } else {
+        print('❌ Failed to add distributor. Status: ${response.statusCode}');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      print('❌ Exception during add distributor:');
+      print('Error: $e');
+      print('Stack trace: $stackTrace');
       return false;
     }
   }
 
   Future<bool> updateDistributor(Map<String, String> distributorData) async {
-    print("Updating distributor with: $distributorData");
+    print('📤 Updating distributor:');
+    print('Data: $distributorData');
 
-    var url = Uri.parse('$baseUrl/add_distributor'); // Still same endpoint
+    var url = Uri.parse('$baseUrl/add_distributor');
     var request = http.MultipartRequest('POST', url);
 
-    // Extract and remove the image path if present
     String? imagePath = distributorData.remove("image");
-
-    // Add other fields
     request.fields.addAll(distributorData);
-    print("Request fields: ${request.fields}");
 
-    // Add image file only if it's provided
+    print('📦 Request fields: ${request.fields}');
+
     if (imagePath != null && imagePath.isNotEmpty) {
       request.files.add(await http.MultipartFile.fromPath('image', imagePath));
-      print("Image file attached: $imagePath");
+      print('📎 Image file attached: $imagePath');
     } else {
-      print("No image selected, skipping image upload.");
+      print('ℹ️ No image selected, skipping image upload');
     }
 
-    // Add headers
     request.headers.addAll({'Authorization': headers['Authorization']!, 'Cookie': headers['Cookie']!});
 
-    // Send the request
+    print('🔑 Request headers: ${request.headers}');
+
     try {
       var response = await request.send();
       final respStr = await response.stream.bytesToString();
 
-      print("Status: ${response.statusCode}");
-      print("Response body: $respStr");
+      print('📥 Response:');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: $respStr');
 
       if (response.statusCode == 200) {
+        print('✅ Successfully updated distributor');
         return true;
       } else {
-        print("Failed to update distributor.");
+        print('❌ Failed to update distributor. Status: ${response.statusCode}');
         return false;
       }
-    } catch (e) {
-      print("Exception during update: $e");
+    } catch (e, stackTrace) {
+      print('❌ Exception during update distributor:');
+      print('Error: $e');
+      print('Stack trace: $stackTrace');
       return false;
     }
   }

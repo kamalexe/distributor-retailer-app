@@ -14,11 +14,11 @@ class ListingScreen extends StatefulWidget {
 class _ListingScreenState extends State<ListingScreen> with SingleTickerProviderStateMixin {
   final ApiService apiService = ApiService();
   late TabController tabController;
+  final TextEditingController searchController = TextEditingController();
 
   List<Distributor> allDistributors = [];
 
   List<Distributor> filteredDistributors = [];
-  TextEditingController searchController = TextEditingController();
   FocusNode searchFocusNode = FocusNode();
 
   // Pagination variables
@@ -57,7 +57,7 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
     });
 
     try {
-      final type = tabController.index == 0 ? 'Distributor' : 'retailer';
+      final type = tabController.index == 0 ? 'Distributor' : 'Retailer';
       final newData = await apiService.fetchDistributors(page: currentPage, limit: itemsPerPage, type: type, search: searchQuery);
 
       setState(() {
@@ -93,8 +93,8 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
   @override
   void dispose() {
     tabController.dispose();
-    searchController.dispose();
     searchFocusNode.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
@@ -137,9 +137,9 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
                   children: [
                     Expanded(
                       child: TextField(
-                        focusNode: searchFocusNode,
                         controller: searchController,
-                        onChanged: filterSearch,
+                        focusNode: searchFocusNode,
+                        onSubmitted: filterSearch,
                         decoration: InputDecoration(
                           hintText: 'Search',
                           hintStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
@@ -155,14 +155,8 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
                       onPressed: () {
                         if (searchFocusNode.hasFocus) {
                           searchFocusNode.unfocus();
-                        } else {
-                          searchFocusNode.requestFocus();
                         }
-                        if (searchController.text.isNotEmpty) {
-                          filterSearch(searchController.text);
-                          searchController.clear();
-                          searchFocusNode.unfocus();
-                        }
+                        filterSearch(searchController.text);
                       },
                       icon: const Icon(Icons.search),
                     ),
