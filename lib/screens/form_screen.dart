@@ -1,4 +1,5 @@
 import 'package:distributor_retailer_app/api/api_service.dart';
+import 'package:distributor_retailer_app/constants/api_constants.dart';
 import 'package:distributor_retailer_app/models/distributor.dart';
 import 'package:distributor_retailer_app/widget/app_widget.dart';
 import 'package:distributor_retailer_app/widget/label_field.dart';
@@ -34,10 +35,7 @@ class _AddUpdateDistributorRetailerFormState extends State<AddUpdateDistributorR
   ApiService apiService = ApiService();
 
   // Define your value maps
-  final Map<String, String> regionMap = {"21": "East", "22": "West"};
-  final Map<String, String> areaMap = {"31": "Zone 1", "32": "Zone 2"};
-  final Map<String, String> bankMap = {"1": "SBI", "2": "HDFC", "3": "ICICI"};
-  final Map<String, String> brandMap = {"1": "Brand A", "2": "Brand B", "3": "Brand C"};
+
   @override
   void initState() {
     super.initState();
@@ -296,7 +294,6 @@ class _AddUpdateDistributorRetailerFormState extends State<AddUpdateDistributorR
                             // Submit form
                             addDistributor();
                           }
-                          // TODO: Save or update data
                         }
                       },
                       child: Text(widget.distributor != null ? "UPDATE" : "ADD"),

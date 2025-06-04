@@ -13,3 +13,9 @@ class ApiConstants {
   static const String getDistributorsEndpoint = '/get_retailer_distributor_master/1';
   static const String addDistributorEndpoint = '/add_distributor';
 }
+
+
+final Map<String, String> regionMap = {"21": "East", "22": "West"};
+final Map<String, String> areaMap = {"31": "Zone 1", "32": "Zone 2"};
+final Map<String, String> bankMap = {"1": "SBI", "2": "HDFC", "3": "ICICI"};
+final Map<String, String> brandMap = {"1": "Brand A", "2": "Brand B", "3": "Brand C"};
