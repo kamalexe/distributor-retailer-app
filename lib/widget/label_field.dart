@@ -40,15 +40,24 @@ class LabelTextField extends StatelessWidget {
 }
 
 class LabelDropdown extends StatelessWidget {
-  const LabelDropdown({super.key, required this.label, required this.items, required this.value, required this.onChanged});
+  const LabelDropdown({super.key, required this.label, required this.items, required this.value, required this.onChanged, this.valueMap});
 
   final String label;
   final List<String> items;
   final String? value;
   final void Function(String?) onChanged;
+  final Map<String, String>? valueMap;
 
   @override
   Widget build(BuildContext context) {
+    // Build dropdown items
+    final List<DropdownMenuItem<String>> dropdownItems = valueMap != null
+        ? valueMap!.entries.map((entry) => DropdownMenuItem<String>(value: entry.key, child: Text(entry.value))).toList()
+        : items.map((item) => DropdownMenuItem<String>(value: item, child: Text(item))).toList();
+
+    // Validate value: must exist in the keys
+    final validValue = dropdownItems.any((item) => item.value == value) ? value : null;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -57,8 +66,8 @@ class LabelDropdown extends StatelessWidget {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 6),
           DropdownButtonFormField<String>(
-            value: value,
-            items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+            value: validValue,
+            items: dropdownItems,
             onChanged: onChanged,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),

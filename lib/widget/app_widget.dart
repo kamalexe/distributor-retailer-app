@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:distributor_retailer_app/models/distributor.dart';
+import 'package:distributor_retailer_app/screens/form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -35,14 +36,22 @@ class DistributorListTile extends StatelessWidget {
                       children: [
                         Text('Status: ', style: const TextStyle(fontSize: 12)),
                         Text(
-                          distributor.isDeleted ? 'Deleted' : 'Active',
-                          style: TextStyle(fontSize: 12, color: distributor.isDeleted ? Colors.red : Colors.green),
+                          distributor.isDelete ? 'Deleted' : 'Active',
+                          style: TextStyle(fontSize: 12, color: distributor.isDelete ? Colors.red : Colors.green),
                         ),
                       ],
                     ),
                   ],
                 ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddUpdateDistributorRetailerForm(distributor: distributor)),
+                    );
+                  },
+                  icon: const Icon(Icons.more_vert),
+                ),
               ],
             ),
           ],
@@ -132,8 +141,9 @@ class AppIconButton extends StatelessWidget {
 
 class ImagePickerWidget extends StatefulWidget {
   final String label;
-  final XFile? initialImage;
+  final String? initialImage;
   final Function(XFile?) onImagePicked;
+
   const ImagePickerWidget({super.key, required this.label, this.initialImage, required this.onImagePicked});
 
   @override
@@ -144,26 +154,20 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   final ImagePicker _imagePicker = ImagePicker();
   XFile? _image;
   bool _isLoading = false;
+
   Future<void> _pickImage() async {
-    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = pickedFile;
-    });
+    final XFile? file = await _imagePicker.pickImage(source: ImageSource.gallery);
+    setState(() => _image = file);
     widget.onImagePicked(_image);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return InkWell(
       onTap: _pickImage,
       child: Container(
         width: double.infinity,
         height: 150,
-
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(2),
           border: Border.all(color: Colors.grey[400]!),
@@ -171,12 +175,26 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         child: _image != null
             ? Image.file(File(_image!.path), fit: BoxFit.cover)
             : widget.initialImage != null
-            ? Image.file(File(widget.initialImage!.path), fit: BoxFit.cover)
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: Image.network(
+                  widget.initialImage!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.broken_image, size: 40)),
+                ),
+              )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.camera_alt, size: 40, color: Colors.grey[400]),
+                  const SizedBox(height: 8),
                   Text(
                     widget.label,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[400]),

@@ -32,20 +32,82 @@ class ApiService {
   }
 
   Future<bool> addDistributor(Map<String, String> distributorData) async {
+    print("Adding distributor with: $distributorData");
     var url = Uri.parse('$baseUrl/add_distributor');
     var request = http.MultipartRequest('POST', url);
 
+    // Extract image path from distributorData and remove it from fields
+    String? imagePath = distributorData.remove("image");
+
+    // Add form fields
     request.fields.addAll(distributorData);
+    print("Request fields: ${request.fields}");
 
+    // Attach the image file, if present
+    if (imagePath != null && imagePath.isNotEmpty) {
+      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+      print("Image file attached: $imagePath");
+    }
+
+    // Headers
     request.headers.addAll({'Authorization': headers['Authorization']!, 'Cookie': 'ci_session=l61gjlkof6re6h2508c5to8kifl3mjkl'});
+    print("Request headers: ${request.headers}");
 
+    // Send the request
     var response = await request.send();
+    print("Response: $response");
 
     if (response.statusCode == 200) {
       final respStr = await response.stream.bytesToString();
-      // You can parse respStr for success message if needed
+      print("Response body: $respStr");
       return true;
     } else {
+      final errorBody = await response.stream.bytesToString();
+      print("Failed to add distributor. Status: ${response.statusCode}, Body: $errorBody");
+      return false;
+    }
+  }
+
+  Future<bool> updateDistributor(Map<String, String> distributorData) async {
+    print("Updating distributor with: $distributorData");
+
+    var url = Uri.parse('$baseUrl/add_distributor'); // Still same endpoint
+    var request = http.MultipartRequest('POST', url);
+
+    // Extract and remove the image path if present
+    String? imagePath = distributorData.remove("image");
+
+    // Add other fields
+    request.fields.addAll(distributorData);
+    print("Request fields: ${request.fields}");
+
+    // Add image file only if it's provided
+    if (imagePath != null && imagePath.isNotEmpty) {
+      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+      print("Image file attached: $imagePath");
+    } else {
+      print("No image selected, skipping image upload.");
+    }
+
+    // Add headers
+    request.headers.addAll({'Authorization': headers['Authorization']!, 'Cookie': headers['Cookie']!});
+
+    // Send the request
+    try {
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      print("Status: ${response.statusCode}");
+      print("Response body: $respStr");
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("Failed to update distributor.");
+        return false;
+      }
+    } catch (e) {
+      print("Exception during update: $e");
       return false;
     }
   }
