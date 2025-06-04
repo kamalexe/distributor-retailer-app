@@ -1,15 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/distributor.dart';
+import '../constants/api_constants.dart';
 
 class ApiService {
-  final String baseUrl = 'http://128.199.98.121/admin/Api';
-  final Map<String, String> headers = {
-    'Authorization': '4ccda7514adc0f13595a585205fb9761',
-    'Content-Type': 'application/json',
-    'Cookie': 'ci_session=lvtdi30a4rvo6rn923nl59h1qn9ro2af', // Use session accordingly
-  };
-
   Future<List<Distributor>> fetchDistributors({int page = 1, int limit = 10, String? type, String? search}) async {
     final queryParams = {
       'page': page.toString(),
@@ -18,15 +12,15 @@ class ApiService {
       if (search != null) 'search': search,
     };
 
-    var url = Uri.parse('$baseUrl/get_retailer_distributor_master/1').replace(queryParameters: queryParams);
+    var url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.getDistributorsEndpoint}').replace(queryParameters: queryParams);
 
     print('🔍 API Request:');
     print('URL: $url');
-    print('Headers: $headers');
+    print('Headers: ${ApiConstants.headers}');
     print('Query Parameters: $queryParams');
 
     try {
-      var response = await http.get(url, headers: headers);
+      var response = await http.get(url, headers: ApiConstants.headers);
 
       print('📥 API Response:');
       print('Status Code: ${response.statusCode}');
@@ -56,7 +50,7 @@ class ApiService {
     print('📤 Adding distributor:');
     print('Data: $distributorData');
 
-    var url = Uri.parse('$baseUrl/add_distributor');
+    var url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.addDistributorEndpoint}');
     var request = http.MultipartRequest('POST', url);
 
     String? imagePath = distributorData.remove("image");
@@ -69,7 +63,7 @@ class ApiService {
       print('📎 Image file attached: $imagePath');
     }
 
-    request.headers.addAll({'Authorization': headers['Authorization']!, 'Cookie': headers['Cookie']!});
+    request.headers.addAll({'Authorization': ApiConstants.headers['Authorization']!, 'Cookie': ApiConstants.headers['Cookie']!});
 
     print('🔑 Request headers: ${request.headers}');
 
@@ -100,7 +94,7 @@ class ApiService {
     print('📤 Updating distributor:');
     print('Data: $distributorData');
 
-    var url = Uri.parse('$baseUrl/add_distributor');
+    var url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.addDistributorEndpoint}');
     var request = http.MultipartRequest('POST', url);
 
     String? imagePath = distributorData.remove("image");
@@ -115,7 +109,7 @@ class ApiService {
       print('ℹ️ No image selected, skipping image upload');
     }
 
-    request.headers.addAll({'Authorization': headers['Authorization']!, 'Cookie': headers['Cookie']!});
+    request.headers.addAll({'Authorization': ApiConstants.headers['Authorization']!, 'Cookie': ApiConstants.headers['Cookie']!});
 
     print('🔑 Request headers: ${request.headers}');
 
