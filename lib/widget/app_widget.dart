@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:distributor_retailer_app/models/distributor.dart';
-import 'package:distributor_retailer_app/screens/form_screen.dart';
+import 'package:distributor_retailer_app/screens/distributor_retailer_form.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -45,10 +45,7 @@ class DistributorListTile extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddUpdateDistributorRetailerForm(distributor: distributor)),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => DistributorRetailerForm(distributor: distributor)));
                   },
                   icon: const Icon(Icons.more_vert),
                 ),

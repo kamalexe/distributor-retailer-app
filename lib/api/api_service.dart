@@ -22,7 +22,7 @@ class ApiService {
         List list = data['data'] ?? [];
         return list.map((json) => Distributor.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load distributors. Status code: ${response.statusCode}');
+        throw Exception('Failed to load distributors. Status code: ${response.statusCode}, Response: ${response.body}');
       }
     } catch (e) {
       throw Exception('Failed to load distributors: $e');
@@ -44,9 +44,15 @@ class ApiService {
 
     try {
       var response = await request.send();
-      return response.statusCode == 200;
+      final respStr = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Failed to add distributor. Status: ${response.statusCode}, Response: $respStr');
+      }
     } catch (e) {
-      return false;
+      throw Exception('Failed to add distributor: $e');
     }
   }
 
@@ -65,9 +71,15 @@ class ApiService {
 
     try {
       var response = await request.send();
-      return response.statusCode == 200;
+      final respStr = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Failed to update distributor. Status: ${response.statusCode}, Response: $respStr');
+      }
     } catch (e) {
-      return false;
+      throw Exception('Failed to update distributor: $e');
     }
   }
 }

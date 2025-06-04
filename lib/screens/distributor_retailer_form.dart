@@ -6,15 +6,15 @@ import 'package:distributor_retailer_app/widget/label_field.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class AddUpdateDistributorRetailerForm extends StatefulWidget {
+class DistributorRetailerForm extends StatefulWidget {
   final Distributor? distributor;
-  const AddUpdateDistributorRetailerForm({super.key, this.distributor});
+  const DistributorRetailerForm({super.key, this.distributor});
 
   @override
-  State<AddUpdateDistributorRetailerForm> createState() => _AddUpdateDistributorRetailerFormState();
+  State<DistributorRetailerForm> createState() => _DistributorRetailerFormState();
 }
 
-class _AddUpdateDistributorRetailerFormState extends State<AddUpdateDistributorRetailerForm> {
+class _DistributorRetailerFormState extends State<DistributorRetailerForm> {
   final _formKey = GlobalKey<FormState>();
 
   String selectedType = 'DISTRIBUTOR';

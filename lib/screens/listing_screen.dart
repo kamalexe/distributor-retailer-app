@@ -1,4 +1,4 @@
-import 'package:distributor_retailer_app/screens/form_screen.dart';
+import 'package:distributor_retailer_app/screens/distributor_retailer_form.dart';
 import 'package:distributor_retailer_app/widget/app_widget.dart';
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
@@ -75,7 +75,27 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
         isLoading = false;
         hasMoreData = false;
       });
-      // You might want to show an error message to the user here
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: () {
+                setState(() {
+                  currentPage = 1;
+                  allDistributors = [];
+                  filteredDistributors = [];
+                  hasMoreData = true;
+                });
+                loadMoreData();
+              },
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -202,10 +222,33 @@ class _ListingScreenState extends State<ListingScreen> with SingleTickerProvider
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddUpdateDistributorRetailerForm()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DistributorRetailerForm()));
         },
         child: Icon(Icons.add),
       ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 6.0,
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavIcon(Icons.home, 0),
+            _buildNavIcon(Icons.camera_alt, 1),
+            _buildNavIcon(Icons.storefront, 2),
+            _buildNavIcon(Icons.local_offer, 3),
+            const SizedBox(width: 40), // space for FAB
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavIcon(IconData icon, int index) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(color: index == 2 ? Colors.black : Colors.white),
+      child: Icon(icon, color: index == 2 ? Colors.white : Colors.black),
     );
   }
 
