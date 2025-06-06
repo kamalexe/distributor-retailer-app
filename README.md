@@ -82,11 +82,6 @@ For Android:
 flutter build apk --release
 ```
 
-For iOS:
-```bash
-flutter build ios --release
-```
-
 ## Project Structure
 
 ```
