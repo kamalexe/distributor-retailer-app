@@ -120,3 +120,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Flutter team for the amazing framework
 - All contributors who have helped in the development
+
+## UI
+![WhatsApp Image 2025-06-06 at 11 39 55 PM](https://github.com/user-attachments/assets/f4645bb1-93a1-44be-beb0-346e435b4f68)
+![WhatsApp Image 2025-06-06 at 11 39 54 PM](https://github.com/user-attachments/assets/e7a47c2c-7036-4850-a052-e22a912f103e)
+![WhatsApp Image 2025-06-06 at 11 39 55 PM](https://github.com/user-attachments/assets/bf31e8de-4b2b-4025-9e86-b04420ffdfad)
+
+
